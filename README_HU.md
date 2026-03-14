@@ -97,7 +97,7 @@ Mielőtt kezdenél, győződj meg róla, hogy megvan:
 
 **A opció — Git használatával:**
 ```bash
-git clone https://github.com/LeszkovszkiAnita/spoken-mcp.git
+git clone https://github.com/leszini/spoken-mcp.git
 cd spoken-mcp
 ```
 
