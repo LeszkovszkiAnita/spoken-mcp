@@ -305,7 +305,6 @@ claude-voice-bridge/
 ├── README.md              — Dokumentáció (angol)
 ├── README_HU.md           — Ez a fájl (magyar)
 ├── LICENSE                 — MIT Licensz
-├── CLAUDE.md              — Projektkontextus Claude Code számára
 ├── config.json            — Konfiguráció API kulccsal (gitignored)
 ├── config.example.json    — Sablonkonfiguráció titkok nélkül
 ├── requirements.txt       — Python függőségek

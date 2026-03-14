@@ -305,7 +305,6 @@ claude-voice-bridge/
 ├── README.md              — This file (English)
 ├── README_HU.md           — Hungarian documentation
 ├── LICENSE                 — MIT License
-├── CLAUDE.md              — Project context for Claude Code
 ├── config.json            — Your config with API key (gitignored)
 ├── config.example.json    — Template config without secrets
 ├── requirements.txt       — Python dependencies
