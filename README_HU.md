@@ -175,7 +175,7 @@ Ez mondja meg a Claude Desktop-nak, hogy létezik a `speak` eszköz és használ
 ```json
 {
   "mcpServers": {
-    "voice-bridge": {
+    "voice-mcp": {
       "command": "python",
       "args": ["C:\\teljes\\elérési\\út\\claude-voice-mcp\\tts_server.py"]
     }

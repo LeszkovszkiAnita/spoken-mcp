@@ -175,7 +175,7 @@ This tells Claude Desktop about the `speak` tool so Claude can use it.
 ```json
 {
   "mcpServers": {
-    "voice-bridge": {
+    "voice-mcp": {
       "command": "python",
       "args": ["C:\\full\\path\\to\\claude-voice-mcp\\tts_server.py"]
     }
