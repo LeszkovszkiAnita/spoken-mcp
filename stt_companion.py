@@ -23,6 +23,7 @@ import time
 import threading
 import wave
 import ctypes
+import re
 import numpy as np
 from pathlib import Path
 
@@ -156,6 +157,7 @@ def stop_recording():
         return
 
     is_recording = False
+    time.sleep(0.15)  # Wait for record_loop to finish its last read
     print("⏹️ Recording stopped, transcribing...", file=sys.stderr)
 
     # Reset tray icon to grey
@@ -163,14 +165,15 @@ def stop_recording():
         tray_icon.icon = load_icon("idle")
         tray_icon.title = "Spoken MCP — Transcribing..."
 
-    # Concatenate audio frames
-    if not audio_frames:
+    # Snapshot audio frames — avoids race with record_loop thread
+    frames_snapshot = list(audio_frames)
+    if not frames_snapshot:
         print("No audio recorded.", file=sys.stderr)
         if tray_icon:
             tray_icon.title = "Spoken MCP — Ready"
         return
 
-    audio_data = np.concatenate(audio_frames, axis=0)
+    audio_data = np.concatenate(frames_snapshot, axis=0)
 
     # Convert to WAV format in memory
     wav_buffer = io.BytesIO()
@@ -206,18 +209,13 @@ def _transcribe_and_paste(wav_buffer: io.BytesIO):
 
         if not text:
             print("Could not recognize any text.", file=sys.stderr)
-            if tray_icon:
-                tray_icon.title = "Spoken MCP — Could not understand"
             return
 
         # Filter out parenthesized "sound descriptions" — e.g. "(ominous music)", "(rock music)"
         # Scribe outputs these when it hears background noise instead of speech
-        import re
         filtered = re.sub(r'\([^)]*\)', '', text).strip()
         if not filtered:
             print(f"⏭️ Background noise description only, skipped: {text}", file=sys.stderr)
-            if tray_icon:
-                tray_icon.title = "Spoken MCP — Background noise filtered"
             return
         text = filtered
 
@@ -261,19 +259,18 @@ def _transcribe_and_paste(wav_buffer: io.BytesIO):
             except Exception:
                 pass
 
+    except Exception as e:
+        print(f"STT error: {e}", file=sys.stderr)
+    finally:
+        transcribing = False
+        # Restore tray icon — centralized here so no exit path can miss it
         if tray_icon:
             if config.get("mode") == "vad_always" and vad_listening and not mic_muted:
                 tray_icon.icon = load_icon("listening")
                 tray_icon.title = "Spoken MCP — Listening"
             else:
+                tray_icon.icon = load_icon("idle")
                 tray_icon.title = "Spoken MCP — Ready"
-
-    except Exception as e:
-        print(f"STT error: {e}", file=sys.stderr)
-        if tray_icon:
-            tray_icon.title = f"Spoken MCP — Error: {str(e)[:30]}"
-    finally:
-        transcribing = False
 
 
 # --- Key handling (pynput — no admin rights needed!) ---
@@ -504,6 +501,13 @@ def start_vad_listener(always_on=False):
                             if transcribing:
                                 print("⏭️ Transcription already in progress, skipped.", file=sys.stderr)
                                 audio_frames = []
+                                if tray_icon:
+                                    if always_on and not mic_muted:
+                                        tray_icon.icon = load_icon("listening")
+                                        tray_icon.title = "Spoken MCP — Listening"
+                                    else:
+                                        tray_icon.icon = load_icon("idle")
+                                        tray_icon.title = "Spoken MCP — Ready"
                                 continue
 
                             if tray_icon:
