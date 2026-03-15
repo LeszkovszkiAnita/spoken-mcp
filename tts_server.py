@@ -9,10 +9,8 @@ and the server reads it aloud through ElevenLabs.
 import json
 import sys
 import os
-import io
 import tempfile
 import threading
-import time
 from pathlib import Path
 
 # TTS playback queue — only one voice can play at a time

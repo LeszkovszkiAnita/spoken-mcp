@@ -262,7 +262,11 @@ def _transcribe_and_paste(wav_buffer: io.BytesIO):
                 pass
 
         if tray_icon:
-            tray_icon.title = "Spoken MCP — Ready"
+            if config.get("mode") == "vad_always" and vad_listening and not mic_muted:
+                tray_icon.icon = load_icon("listening")
+                tray_icon.title = "Spoken MCP — Listening"
+            else:
+                tray_icon.title = "Spoken MCP — Ready"
 
     except Exception as e:
         print(f"STT error: {e}", file=sys.stderr)
@@ -487,7 +491,6 @@ def start_vad_listener(always_on=False):
                         if recording_started and silence_frame_count >= silence_frames_needed:
                             recording_started = False
                             is_recording = False
-                            total_speech_frames = speech_frame_count
                             speech_frame_count = 0
                             silence_frame_count = 0
 
@@ -549,8 +552,9 @@ def create_tray():
         mode_label = "Continuous listening (VAD always-on)"
         key_label = f"{mute_key} = microphone mute"
     elif mode == "vad":
+        hotkey = config.get("hotkey", "caps lock").upper()
         mode_label = "VAD + toggle mode"
-        key_label = f"{mute_key} = listening on/off"
+        key_label = f"{hotkey} = listening on/off"
     else:
         hotkey = config.get("hotkey", "caps lock").upper()
         mode_label = "Push-to-talk mode"
