@@ -17,6 +17,9 @@ from pathlib import Path
 # TTS playback queue — only one voice can play at a time
 _tts_lock = threading.Lock()
 
+# Lockfile to signal STT companion that TTS is playing (prevents feedback loop)
+SPEAKING_LOCK = Path(__file__).parent / ".speaking.lock"
+
 from mcp.server.fastmcp import FastMCP
 
 # --- Load configuration ---
@@ -88,7 +91,13 @@ def speak(text: str, voice: str | None = None) -> str:
                     )
 
                     if audio_bytes:
-                        _play_audio_mp3(audio_bytes)
+                        # Signal STT companion to pause VAD (prevents feedback loop)
+                        SPEAKING_LOCK.touch()
+                        try:
+                            _play_audio_mp3(audio_bytes)
+                            time.sleep(0.5)  # Let VAD settle after playback ends
+                        finally:
+                            SPEAKING_LOCK.unlink(missing_ok=True)
                     else:
                         print("TTS: empty audio received from API!", file=sys.stderr)
                 except Exception as e:

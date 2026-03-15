@@ -348,6 +348,7 @@ spoken-mcp/
 | Átírás zajleírásokat tartalmaz, pl. "(zene)" | Ez automatikusan szűrve van. Ha mégis előfordul, növeld a `vad.aggressiveness` értéket 3-ra |
 | Több példány fut egyszerre | A companion beépített egypéldány-védelemmel rendelkezik. Zárd be az összes `python.exe` folyamatot és indítsd újra |
 | `webrtcvad` telepítés sikertelen | Használd helyette: `pip install webrtcvad-wheels` |
+| Claude hangja visszaíródik a bemenetbe (feedback loop) | Ez automatikusan kezelve van egy lockfile segítségével. Ha mégis előfordul, használj fejhallgatót, vagy nyomd meg a némítás gombot, amíg Claude beszél |
 
 ---
 

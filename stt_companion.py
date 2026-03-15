@@ -51,6 +51,9 @@ if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
 CONFIG_PATH = Path(__file__).parent / "config.json"
 ICONS_DIR = Path(__file__).parent / "icons"
 
+# Lockfile created by TTS server during playback (prevents feedback loop)
+SPEAKING_LOCK = Path(__file__).parent / ".speaking.lock"
+
 
 def load_config() -> dict:
     """Loads the config.json file."""
@@ -242,7 +245,6 @@ def _transcribe_and_paste(wav_buffer: io.BytesIO):
             time.sleep(0.3)  # Wait to ensure clipboard is updated
 
             # Ctrl+V paste — more reliable via win32 API
-            import ctypes
             # Simulate Ctrl+V key combination at low level
             VK_CONTROL = 0x11
             VK_V = 0x56
@@ -450,8 +452,8 @@ def start_vad_listener(always_on=False):
                 try:
                     data, _ = stream.read(FRAME_SIZE)
 
-                    # If listening is off OR muted, skip
-                    if not vad_listening or mic_muted:
+                    # If listening is off, muted, or TTS is playing, skip
+                    if not vad_listening or mic_muted or SPEAKING_LOCK.exists():
                         speech_frame_count = 0
                         silence_frame_count = 0
                         if recording_started:

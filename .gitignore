@@ -1,6 +1,9 @@
 # API keys and custom settings
 config.json
 
+# TTS-STT feedback loop lockfile
+.speaking.lock
+
 # Python
 __pycache__/
 *.py[cod]

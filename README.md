@@ -349,6 +349,7 @@ spoken-mcp/
 | Multiple instances running | The companion has built-in single-instance protection. Kill all `python.exe` processes and restart |
 | `webrtcvad` install fails | Use `pip install webrtcvad-wheels` instead |
 | `keyboard` library needs admin | This project uses `pynput` instead — no admin rights needed |
+| Claude's voice is transcribed as your input (feedback loop) | This is handled automatically via a lock file. If it still happens, use headphones or press the mute key while Claude is speaking |
 
 ---
 
